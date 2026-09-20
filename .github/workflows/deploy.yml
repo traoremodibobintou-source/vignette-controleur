@@ -19,12 +19,11 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      - name: Installer Node.js
+       - name: Installer Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: "l'extrémité avant/package-lock.json"
+         with:
+          node-version: 24
+
 
       - name: Installer les dépendances
         working-directory: "l'extrémité avant"
