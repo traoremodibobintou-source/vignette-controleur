@@ -1,5 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -20,7 +19,7 @@ function App() {
       <Layout>
         <Routes>
           {/* Pages publiques */}
-          <Route path="/" element={<Accueil />} />
+          <Route path="/" element={<Navigate to="/connexion" replace />} />
           <Route path="/connexion" element={<Connexion />} />
 
           {/* Pages accessibles au contrôleur et à l'administrateur */}
