@@ -1,9 +1,9 @@
-name: Déployer le frontend
+name: Deploy frontend
 
 on:
   push:
     branches:
-      - principal
+      - main
   workflow_dispatch:
 
 permissions:
@@ -16,30 +16,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Récupérer le code
+      - name: Checkout
         uses: actions/checkout@v4
 
-       - name: Installer Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
-         with:
+        with:
           node-version: 24
 
-
-      - name: Installer les dépendances
-        working-directory: "l'extrémité avant"
+      - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
-      - name: Construire le projet
-        working-directory: "l'extrémité avant"
-        run: npm run construire
+      - name: Build project
+        working-directory: frontend
+        run: npm run build
 
-      - name: Configurer GitHub Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Préparer le site
+      - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "l'extrémité avant/dist"
+          path: frontend/dist
 
   deploy:
     environment:
@@ -49,6 +48,6 @@ jobs:
     needs: build
 
     steps:
-      - name: Publier sur GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
