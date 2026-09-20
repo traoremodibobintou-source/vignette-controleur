@@ -1,0 +1,511 @@
+/* =========================================================
+   VIGNETTE CONTRÔLEUR - DESIGN GLOBAL
+   Basé sur le prototype D-CLIC
+   ========================================================= */
+
+:root {
+  --primary: #0f3d56;
+  --primary-dark: #092c3f;
+  --primary-light: #eaf4f8;
+
+  --accent: #1d8db5;
+  --accent-light: #e8f7fb;
+
+  --success: #16834b;
+  --success-light: #e8f7ef;
+
+  --danger: #c93636;
+  --danger-light: #fdecec;
+
+  --warning: #c47b16;
+  --warning-light: #fff5df;
+
+  --text: #1f2937;
+  --text-light: #667085;
+
+  --background: #f5f7fa;
+  --surface: #ffffff;
+  --border: #dce3e8;
+
+  --shadow: 0 4px 16px rgba(15, 61, 86, 0.08);
+  --shadow-hover: 0 8px 24px rgba(15, 61, 86, 0.14);
+}
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+/* =========================================================
+   CONTENEUR PRINCIPAL
+   ========================================================= */
+
+#root {
+  min-height: 100vh;
+}
+
+/* =========================================================
+   TITRES
+   ========================================================= */
+
+h1 {
+  margin: 0 0 10px;
+  color: var(--primary);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h2 {
+  margin: 28px 0 16px;
+  color: var(--primary);
+  font-size: 21px;
+  font-weight: 700;
+}
+
+h3 {
+  margin: 0 0 8px;
+  color: var(--primary);
+  font-size: 16px;
+}
+
+p {
+  line-height: 1.6;
+}
+
+/* =========================================================
+   BOUTONS
+   ========================================================= */
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 18px;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+button:hover {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Boutons secondaires */
+button[type="button"] {
+  background: var(--accent);
+}
+
+button[type="button"]:hover {
+  background: #167b9e;
+}
+
+/* =========================================================
+   FORMULAIRES
+   ========================================================= */
+
+form {
+  width: 100%;
+}
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--text);
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(29, 141, 181, 0.12);
+}
+
+input::placeholder {
+  color: #98a2b3;
+}
+
+/* =========================================================
+   SECTIONS / CARTES
+   ========================================================= */
+
+section {
+  margin-top: 24px;
+  padding: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* =========================================================
+   TABLEAUX
+   ========================================================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+thead {
+  background: var(--primary);
+  color: white;
+}
+
+th {
+  padding: 13px 14px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+tbody tr:hover {
+  background: #f7fafc;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+
+#root p {
+  color: var(--text);
+}
+
+/* =========================================================
+   ÉTATS
+   ========================================================= */
+
+.status-valid,
+.status-success {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: var(--success-light);
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-expired,
+.status-danger,
+.status-stolen {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: var(--danger-light);
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   STRUCTURE DU PROTOTYPE
+   HEADER + SIDEBAR + CONTENU + FOOTER
+   ========================================================= */
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+}
+
+.app-header {
+  min-height: 68px;
+  padding: 0 28px;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(15, 61, 86, 0.15);
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.app-logo-icon {
+  font-size: 24px;
+}
+
+.app-header-right {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.app-body {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+}
+
+.app-sidebar {
+  width: 245px;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid var(--border);
+  padding: 22px 14px;
+}
+
+.app-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 11px 14px;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.sidebar-link.active {
+  background: var(--primary);
+  color: white;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  padding: 30px;
+  text-align: left;
+}
+
+.app-footer {
+  padding: 18px 28px;
+  background: white;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.app-footer p {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+/* =========================================================
+   RESPONSIVE TABLETTE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  section {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  h2 {
+    font-size: 19px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUT
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .app-header {
+    padding: 0 18px;
+  }
+
+  .app-header-right {
+    display: none;
+  }
+
+  .app-body {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    padding: 10px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .app-sidebar nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .sidebar-link {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .app-content {
+    padding: 20px 15px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 23px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  section {
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 9px;
+  }
+
+  button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 42px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  th,
+  td {
+    padding: 10px;
+  }
+}
+
+/* =========================================================
+   PETIT ÉCRAN
+   ========================================================= */
+
+@media (max-width: 500px) {
+  .app-logo {
+    font-size: 17px;
+  }
+
+  .app-logo-icon {
+    font-size: 21px;
+  }
+
+  .app-sidebar nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sidebar-link {
+    width: 100%;
+  }
+
+  .app-content {
+    padding: 16px 12px;
+  }
+}
