@@ -16,7 +16,7 @@ import Vignettes from "./pages/Vignettes";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/vignette-controleur">
       <Layout>
         <Routes>
           {/* Pages publiques */}
