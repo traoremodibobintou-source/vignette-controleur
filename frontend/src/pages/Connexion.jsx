@@ -16,16 +16,19 @@ function Connexion() {
     setChargement(true);
 
     try {
-     const response = await fetch("https://vignette-controleur.onrender.com/api/login", { 
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const response = await fetch(
+        "https://vignette-controleur.onrender.com/api/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            email,
+            password,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -44,6 +47,7 @@ function Connexion() {
         setErreur("Rôle utilisateur non reconnu.");
       }
     } catch (error) {
+      console.error("Erreur de connexion :", error);
       setErreur("Impossible de contacter le serveur.");
     } finally {
       setChargement(false);
