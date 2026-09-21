@@ -4,7 +4,14 @@ return [
 
     'paths' => ['api/*'],
 
-    'allowed_headers' => ['*'],
+    'allowed_methods' => [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'OPTIONS',
+    ],
 
     'allowed_origins' => [
         'https://traoremodibobintou-source.github.io',
@@ -12,12 +19,7 @@ return [
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => [
-        'Content-Type',
-        'Accept',
-        'Origin',
-        'Authorization',
-    ],
+    'allowed_headers' => ['*'],
 
     'exposed_headers' => [],
 
