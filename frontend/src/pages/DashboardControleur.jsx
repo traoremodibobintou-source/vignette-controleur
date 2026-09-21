@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 function DashboardControleur() {
   const navigate = useNavigate();
 
+  const API_URL = "https://vignette-controleur.onrender.com/api";
+
   const [vehicules, setVehicules] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
@@ -11,9 +13,11 @@ function DashboardControleur() {
   useEffect(() => {
     const chargerVehicules = async () => {
       try {
-        const response = await fetch(
-          "http://127.0.0.1:8001/api/vehicules"
-        );
+        const response = await fetch(`${API_URL}/vehicules`, {
+          headers: {
+            Accept: "application/json",
+          },
+        });
 
         const data = await response.json();
 
