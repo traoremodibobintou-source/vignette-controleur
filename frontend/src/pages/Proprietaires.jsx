@@ -15,12 +15,20 @@ function Proprietaires() {
   const [telephone, setTelephone] = useState("");
   const [adresse, setAdresse] = useState("");
 
+  const API_URL = "https://vignette-controleur.onrender.com/api";
+
   const chargerProprietaires = async () => {
     try {
       setChargement(true);
 
       const response = await fetch(
-        "http://127.0.0.1:8001/api/proprietaires"
+        `${API_URL}/proprietaires`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }
       );
 
       const data = await response.json();
@@ -34,7 +42,9 @@ function Proprietaires() {
       setProprietaires(data);
       setErreur("");
     } catch (error) {
-      setErreur(error.message);
+      setErreur(
+        error.message || "Impossible de contacter le serveur."
+      );
     } finally {
       setChargement(false);
     }
@@ -61,11 +71,12 @@ function Proprietaires() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8001/api/proprietaires",
+        `${API_URL}/proprietaires`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({
             nom,
@@ -90,7 +101,9 @@ function Proprietaires() {
       setAfficherFormulaire(false);
       setMessage("Propriétaire ajouté avec succès.");
     } catch (error) {
-      setErreur(error.message);
+      setErreur(
+        error.message || "Impossible de contacter le serveur."
+      );
     }
   };
 
@@ -102,11 +115,12 @@ function Proprietaires() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8001/api/proprietaires/${proprietaireModifieId}`,
+        `${API_URL}/proprietaires/${proprietaireModifieId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({
             nom,
@@ -137,7 +151,9 @@ function Proprietaires() {
       setAfficherFormulaire(false);
       setMessage("Propriétaire modifié avec succès.");
     } catch (error) {
-      setErreur(error.message);
+      setErreur(
+        error.message || "Impossible de contacter le serveur."
+      );
     }
   };
 
@@ -155,9 +171,12 @@ function Proprietaires() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8001/api/proprietaires/${id}`,
+        `${API_URL}/proprietaires/${id}`,
         {
           method: "DELETE",
+          headers: {
+            Accept: "application/json",
+          },
         }
       );
 
@@ -178,7 +197,9 @@ function Proprietaires() {
 
       setMessage("Propriétaire supprimé avec succès.");
     } catch (error) {
-      setErreur(error.message);
+      setErreur(
+        error.message || "Impossible de contacter le serveur."
+      );
     }
   };
 
@@ -351,6 +372,7 @@ function Proprietaires() {
             </div>
 
             <div className="form-actions">
+
               {modeModification && (
                 <button
                   type="button"
@@ -369,6 +391,7 @@ function Proprietaires() {
                   ? "Enregistrer la modification"
                   : "+ Enregistrer le propriétaire"}
               </button>
+
             </div>
           </form>
         </section>
