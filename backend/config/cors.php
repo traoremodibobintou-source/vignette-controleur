@@ -4,14 +4,7 @@ return [
 
     'paths' => ['api/*'],
 
-    'allowed_methods' => [
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-        'OPTIONS',
-    ],
+    'allowed_headers' => ['*'],
 
     'allowed_origins' => [
         'https://traoremodibobintou-source.github.io',
