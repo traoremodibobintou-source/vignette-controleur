@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 function Recherche() {
+  const API_URL = "https://vignette-controleur.onrender.com/api";
+
   const [mode, setMode] = useState("plaque");
   const [valeur, setValeur] = useState("");
   const [resultat, setResultat] = useState(null);
@@ -18,16 +20,21 @@ function Recherche() {
       let url;
 
       if (mode === "plaque") {
-        url = `http://127.0.0.1:8001/api/vehicules/search?plaque=${encodeURIComponent(
+        url = `${API_URL}/vehicules/search?plaque=${encodeURIComponent(
           valeur
         )}`;
       } else {
-        url = `http://127.0.0.1:8001/api/vignettes/search?number=${encodeURIComponent(
+        url = `${API_URL}/vignettes/search?number=${encodeURIComponent(
           valeur
         )}`;
       }
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -70,6 +77,7 @@ function Recherche() {
       <div className="page-header">
         <div>
           <h1>Recherche</h1>
+
           <p>
             Vérifiez rapidement les informations d'un véhicule ou d'une
             vignette.
@@ -81,7 +89,9 @@ function Recherche() {
         <div className="search-tabs">
           <button
             type="button"
-            className={mode === "plaque" ? "search-tab active" : "search-tab"}
+            className={
+              mode === "plaque" ? "search-tab active" : "search-tab"
+            }
             onClick={() => changerMode("plaque")}
           >
             🔎 Par numéro de plaque
