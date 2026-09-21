@@ -8,6 +8,8 @@ function AjouterVehicule() {
   const id = searchParams.get("id");
   const modeModification = Boolean(id);
 
+  const API_URL = "https://vignette-controleur.onrender.com/api";
+
   const [proprietaires, setProprietaires] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [enregistrement, setEnregistrement] = useState(false);
@@ -24,17 +26,12 @@ function AjouterVehicule() {
     proprietaire_id: "",
   });
 
-  const API_URL = "https://vignette-controleur.onrender.com/api";
-
   useEffect(() => {
     const chargerDonnees = async () => {
       try {
-        setChargement(true);
-
         const proprietairesResponse = await fetch(
           `${API_URL}/proprietaires`,
           {
-            method: "GET",
             headers: {
               Accept: "application/json",
             },
@@ -57,7 +54,6 @@ function AjouterVehicule() {
           const vehiculeResponse = await fetch(
             `${API_URL}/vehicules/${id}`,
             {
-              method: "GET",
               headers: {
                 Accept: "application/json",
               },
@@ -86,10 +82,7 @@ function AjouterVehicule() {
           });
         }
       } catch (error) {
-        setErreur(
-          error.message ||
-            "Impossible de contacter le serveur."
-        );
+        setErreur(error.message);
       } finally {
         setChargement(false);
       }
@@ -161,10 +154,7 @@ function AjouterVehicule() {
         navigate("/gestion-vehicules");
       }, 800);
     } catch (error) {
-      setErreur(
-        error.message ||
-          "Impossible de contacter le serveur."
-      );
+      setErreur(error.message);
     } finally {
       setEnregistrement(false);
     }
@@ -208,9 +198,7 @@ function AjouterVehicule() {
       <button
         type="button"
         className="secondary-button form-back-button"
-        onClick={() =>
-          navigate("/gestion-vehicules")
-        }
+        onClick={() => navigate("/gestion-vehicules")}
       >
         ← Retour
       </button>
@@ -293,13 +281,18 @@ function AjouterVehicule() {
                 <option value="Minibus">Minibus</option>
                 <option value="Bus">Bus</option>
                 <option value="Camion">Camion</option>
+
                 <option value="Camion-remorque">
                   Camion-remorque
                 </option>
+
                 <option value="Tracteur/Engin">
                   Tracteur / Engin
                 </option>
-                <option value="Autre">Autre</option>
+
+                <option value="Autre">
+                  Autre
+                </option>
               </select>
             </div>
 
@@ -421,4 +414,18 @@ function AjouterVehicule() {
               {enregistrement
                 ? "Enregistrement..."
                 : modeModification
-                ? "✓ Enregistrer les modifications
+                ? "✓ Enregistrer les modifications"
+                : "+ Enregistrer le véhicule"}
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    </div>
+  );
+}
+
+export default AjouterVehicule;
