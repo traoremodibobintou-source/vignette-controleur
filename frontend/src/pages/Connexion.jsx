@@ -21,9 +21,10 @@ function Connexion() {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
+            Accept: "application/json",
           },
-          body: new URLSearchParams({
+          body: JSON.stringify({
             email,
             password,
           }),
@@ -33,7 +34,9 @@ function Connexion() {
       const data = await response.json();
 
       if (!response.ok) {
-        setErreur(data.message || "Email ou mot de passe incorrect.");
+        setErreur(
+          data.message || "Email ou mot de passe incorrect."
+        );
         return;
       }
 
