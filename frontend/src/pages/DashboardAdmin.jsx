@@ -88,8 +88,6 @@ function DashboardAdmin() {
 
   return (
     <div className="dashboard-page">
-
-      {/* En-tête de la page */}
       <section className="page-header">
         <div>
           <h1>Dashboard Administrateur</h1>
@@ -101,16 +99,13 @@ function DashboardAdmin() {
         </div>
       </section>
 
-      {/* Message d'erreur */}
       {erreur && (
         <div className="alert alert-error">
           {erreur}
         </div>
       )}
 
-      {/* Statistiques */}
       <section className="dashboard-section">
-
         <div className="section-heading">
           <div>
             <h2>Vue d'ensemble</h2>
@@ -127,7 +122,6 @@ function DashboardAdmin() {
           </div>
         ) : (
           <div className="stats-grid">
-
             <div className="stat-card">
               <div className="stat-card-icon">
                 🚗
@@ -150,3 +144,171 @@ function DashboardAdmin() {
 
             <div className="stat-card">
               <div className="stat-card-icon">
+                👤
+              </div>
+
+              <div className="stat-card-content">
+                <span className="stat-card-label">
+                  Propriétaires
+                </span>
+
+                <strong className="stat-card-value">
+                  {proprietaires.length}
+                </strong>
+
+                <span className="stat-card-description">
+                  Propriétaires enregistrés
+                </span>
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-card-icon">
+                🎫
+              </div>
+
+              <div className="stat-card-content">
+                <span className="stat-card-label">
+                  Vignettes
+                </span>
+
+                <strong className="stat-card-value">
+                  {vignettes.length}
+                </strong>
+
+                <span className="stat-card-description">
+                  Vignettes enregistrées
+                </span>
+              </div>
+            </div>
+
+            <div className="stat-card stat-card-warning">
+              <div className="stat-card-icon">
+                ⚠️
+              </div>
+
+              <div className="stat-card-content">
+                <span className="stat-card-label">
+                  Véhicules signalés
+                </span>
+
+                <strong className="stat-card-value">
+                  {vehiculesSignales.length}
+                </strong>
+
+                <span className="stat-card-description">
+                  Véhicules signalés comme volés
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="dashboard-section">
+        <div className="section-heading">
+          <div>
+            <h2>Actions rapides</h2>
+
+            <p>
+              Accédez rapidement aux principales fonctions
+              d'administration.
+            </p>
+          </div>
+        </div>
+
+        <div className="quick-actions-grid">
+          <button
+            type="button"
+            className="action-card"
+            onClick={() => navigate("/gestion-vehicules")}
+          >
+            <span className="action-card-icon">
+              🚗
+            </span>
+
+            <span className="action-card-content">
+              <strong>Gérer les véhicules</strong>
+
+              <small>
+                Consulter, modifier ou supprimer un véhicule
+              </small>
+            </span>
+
+            <span className="action-card-arrow">
+              →
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="action-card"
+            onClick={() => navigate("/ajouter-vehicule")}
+          >
+            <span className="action-card-icon">
+              ➕
+            </span>
+
+            <span className="action-card-content">
+              <strong>Ajouter un véhicule</strong>
+
+              <small>
+                Enregistrer un nouveau véhicule
+              </small>
+            </span>
+
+            <span className="action-card-arrow">
+              →
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="action-card"
+            onClick={() => navigate("/proprietaires")}
+          >
+            <span className="action-card-icon">
+              👤
+            </span>
+
+            <span className="action-card-content">
+              <strong>Gérer les propriétaires</strong>
+
+              <small>
+                Consulter et gérer les propriétaires
+              </small>
+            </span>
+
+            <span className="action-card-arrow">
+              →
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="action-card"
+            onClick={() => navigate("/vignettes")}
+          >
+            <span className="action-card-icon">
+              🎫
+            </span>
+
+            <span className="action-card-content">
+              <strong>Gérer les vignettes</strong>
+
+              <small>
+                Consulter, modifier ou supprimer une vignette
+              </small>
+            </span>
+
+            <span className="action-card-arrow">
+              →
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export default DashboardAdmin;
