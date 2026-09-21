@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
 function Vignettes() {
+  const API_URL =
+    "https://vignette-controleur.onrender.com/api";
+
   const [vignettes, setVignettes] = useState([]);
   const [vehicules, setVehicules] = useState([]);
 
@@ -32,10 +35,19 @@ function Vignettes() {
   const [statut, setStatut] =
     useState("valide");
 
+  /* =========================
+     CHARGER LES VIGNETTES
+  ========================= */
+
   const chargerVignettes = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8001/api/vignettes"
+        `${API_URL}/vignettes`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
       );
 
       const data = await response.json();
@@ -48,16 +60,24 @@ function Vignettes() {
       }
 
       setVignettes(data);
-      setErreur("");
     } catch (error) {
       setErreur(error.message);
     }
   };
 
+  /* =========================
+     CHARGER LES VEHICULES
+  ========================= */
+
   const chargerVehicules = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8001/api/vehicules"
+        `${API_URL}/vehicules`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
       );
 
       const data = await response.json();
@@ -75,9 +95,14 @@ function Vignettes() {
     }
   };
 
+  /* =========================
+     CHARGEMENT INITIAL
+  ========================= */
+
   useEffect(() => {
     const chargerDonnees = async () => {
       setChargement(true);
+      setErreur("");
 
       await Promise.all([
         chargerVignettes(),
@@ -90,6 +115,10 @@ function Vignettes() {
     chargerDonnees();
   }, []);
 
+  /* =========================
+     VIDER LE FORMULAIRE
+  ========================= */
+
   const viderFormulaire = () => {
     setNumeroVignette("");
     setVehiculeId("");
@@ -101,6 +130,10 @@ function Vignettes() {
     setModeModification(false);
   };
 
+  /* =========================
+     AJOUTER UNE VIGNETTE
+  ========================= */
+
   const ajouterVignette = async (event) => {
     event.preventDefault();
 
@@ -109,11 +142,12 @@ function Vignettes() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8001/api/vignettes",
+        `${API_URL}/vignettes`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({
             numero_vignette: numeroVignette,
@@ -128,43 +162,60 @@ function Vignettes() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 422 && data.errors) {
+          const erreurs = Object.values(data.errors)
+            .flat()
+            .join(" ");
+
+          throw new Error(erreurs);
+        }
+
         throw new Error(
           data.message ||
             "Erreur lors de l'ajout de la vignette."
         );
       }
 
-      setVignettes([...vignettes, data]);
+      setVignettes((anciennes) => [
+        ...anciennes,
+        data,
+      ]);
 
       viderFormulaire();
       setAfficherFormulaire(false);
 
       setMessage(
-        "Vignette ajoutée avec succès."
+        "✓ Vignette ajoutée avec succès."
       );
     } catch (error) {
       setErreur(error.message);
     }
   };
 
+  /* =========================
+     PREPARER MODIFICATION
+  ========================= */
+
   const preparerModification = (vignette) => {
     setNumeroVignette(
-      vignette.numero_vignette
+      vignette.numero_vignette || ""
     );
 
     setVehiculeId(
-      String(vignette.vehicule_id)
+      String(vignette.vehicule_id || "")
     );
 
     setDateDelivrance(
-      vignette.date_delivrance
+      vignette.date_delivrance || ""
     );
 
     setDateExpiration(
-      vignette.date_expiration
+      vignette.date_expiration || ""
     );
 
-    setStatut(vignette.statut);
+    setStatut(
+      vignette.statut || "valide"
+    );
 
     setVignetteModifieeId(vignette.id);
     setModeModification(true);
@@ -174,6 +225,10 @@ function Vignettes() {
     setMessage("");
   };
 
+  /* =========================
+     MODIFIER UNE VIGNETTE
+  ========================= */
+
   const modifierVignette = async (event) => {
     event.preventDefault();
 
@@ -182,11 +237,12 @@ function Vignettes() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8001/api/vignettes/${vignetteModifieeId}`,
+        `${API_URL}/vignettes/${vignetteModifieeId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({
             numero_vignette: numeroVignette,
@@ -201,14 +257,22 @@ function Vignettes() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 422 && data.errors) {
+          const erreurs = Object.values(data.errors)
+            .flat()
+            .join(" ");
+
+          throw new Error(erreurs);
+        }
+
         throw new Error(
           data.message ||
             "Erreur lors de la modification."
         );
       }
 
-      setVignettes(
-        vignettes.map((vignette) =>
+      setVignettes((anciennes) =>
+        anciennes.map((vignette) =>
           vignette.id === vignetteModifieeId
             ? data
             : vignette
@@ -219,12 +283,16 @@ function Vignettes() {
       setAfficherFormulaire(false);
 
       setMessage(
-        "Vignette modifiée avec succès."
+        "✓ Vignette modifiée avec succès."
       );
     } catch (error) {
       setErreur(error.message);
     }
   };
+
+  /* =========================
+     SUPPRIMER UNE VIGNETTE
+  ========================= */
 
   const supprimerVignette = async (id) => {
     const confirmation = window.confirm(
@@ -240,9 +308,12 @@ function Vignettes() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8001/api/vignettes/${id}`,
+        `${API_URL}/vignettes/${id}`,
         {
           method: "DELETE",
+          headers: {
+            Accept: "application/json",
+          },
         }
       );
 
@@ -255,20 +326,23 @@ function Vignettes() {
         );
       }
 
-      setVignettes(
-        vignettes.filter(
-          (vignette) =>
-            vignette.id !== id
+      setVignettes((anciennes) =>
+        anciennes.filter(
+          (vignette) => vignette.id !== id
         )
       );
 
       setMessage(
-        "Vignette supprimée avec succès."
+        "✓ Vignette supprimée avec succès."
       );
     } catch (error) {
       setErreur(error.message);
     }
   };
+
+  /* =========================
+     ANNULER
+  ========================= */
 
   const annulerModification = () => {
     viderFormulaire();
@@ -277,54 +351,105 @@ function Vignettes() {
     setMessage("");
   };
 
+  /* =========================
+     AFFICHAGE
+  ========================= */
+
   return (
     <div className="vignettes-page">
-      <h1>Gestion des vignettes</h1>
 
-      <button
-        type="button"
-        onClick={() => {
-          viderFormulaire();
+      {/* EN-TÊTE */}
 
-          setAfficherFormulaire(
-            !afficherFormulaire
-          );
+      <div className="page-header">
+        <div>
+          <span className="page-kicker">
+            ADMINISTRATION
+          </span>
 
-          setErreur("");
-          setMessage("");
-        }}
-      >
-        {afficherFormulaire
-          ? "Fermer le formulaire"
-          : "Ajouter une vignette"}
-      </button>
+          <h1>
+            Gestion des vignettes
+          </h1>
+
+          <p>
+            Gérez les vignettes enregistrées
+            dans la base de données.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="primary-button"
+          onClick={() => {
+            if (afficherFormulaire) {
+              viderFormulaire();
+            }
+
+            setAfficherFormulaire(
+              !afficherFormulaire
+            );
+
+            setErreur("");
+            setMessage("");
+          }}
+        >
+          {afficherFormulaire
+            ? "Fermer le formulaire"
+            : "+ Ajouter une vignette"}
+        </button>
+      </div>
+
+      {/* MESSAGES */}
 
       {message && (
-        <p>{message}</p>
+        <div className="alert alert-success">
+          {message}
+        </div>
       )}
 
       {erreur && (
-        <p>{erreur}</p>
+        <div className="alert alert-error">
+          {erreur}
+        </div>
       )}
 
+      {/* FORMULAIRE */}
+
       {afficherFormulaire && (
-        <section>
-          <h2>
-            {modeModification
-              ? "Modifier une vignette"
-              : "Nouvelle vignette"}
-          </h2>
+        <section className="data-section vignette-form-section">
+
+          <div className="section-heading">
+            <div>
+              <span className="page-kicker">
+                VIGNETTE
+              </span>
+
+              <h2>
+                {modeModification
+                  ? "Modifier une vignette"
+                  : "Nouvelle vignette"}
+              </h2>
+
+              <p>
+                Renseignez les informations
+                de la vignette.
+              </p>
+            </div>
+          </div>
 
           <form
+            className="vignette-form"
             onSubmit={
               modeModification
                 ? modifierVignette
                 : ajouterVignette
             }
           >
-            <div>
+
+            {/* NUMERO */}
+
+            <div className="form-field">
               <label htmlFor="numero_vignette">
-                Numéro de vignette
+                Numéro de vignette *
               </label>
 
               <input
@@ -336,14 +461,16 @@ function Vignettes() {
                     event.target.value
                   )
                 }
-                placeholder="Ex : VG-2026-00003"
+                placeholder="Ex : VG-2026-00001"
                 required
               />
             </div>
 
-            <div>
+            {/* VEHICULE */}
+
+            <div className="form-field">
               <label htmlFor="vehicule_id">
-                Véhicule
+                Véhicule *
               </label>
 
               <select
@@ -357,7 +484,9 @@ function Vignettes() {
                 required
               >
                 <option value="">
-                  Sélectionner un véhicule
+                  {vehicules.length === 0
+                    ? "Aucun véhicule enregistré"
+                    : "Sélectionner un véhicule"}
                 </option>
 
                 {vehicules.map((vehicule) => (
@@ -365,16 +494,30 @@ function Vignettes() {
                     key={vehicule.id}
                     value={vehicule.id}
                   >
-                    {vehicule.plaque} -{" "}
-                    {vehicule.type}
+                    {vehicule.plaque}
+                    {" — "}
+                    {vehicule.type || "Véhicule"}
+                    {vehicule.marque
+                      ? ` — ${vehicule.marque}`
+                      : ""}
                   </option>
                 ))}
               </select>
+
+              {vehicules.length === 0 && (
+                <small className="form-help">
+                  Aucun véhicule n'est actuellement
+                  enregistré dans la base de données.
+                  Ajoutez d'abord un véhicule.
+                </small>
+              )}
             </div>
 
-            <div>
+            {/* DATE DELIVRANCE */}
+
+            <div className="form-field">
               <label htmlFor="date_delivrance">
-                Date de délivrance
+                Date de délivrance *
               </label>
 
               <input
@@ -390,9 +533,11 @@ function Vignettes() {
               />
             </div>
 
-            <div>
+            {/* DATE EXPIRATION */}
+
+            <div className="form-field">
               <label htmlFor="date_expiration">
-                Date d'expiration
+                Date d'expiration *
               </label>
 
               <input
@@ -408,9 +553,11 @@ function Vignettes() {
               />
             </div>
 
-            <div>
+            {/* STATUT */}
+
+            <div className="form-field">
               <label htmlFor="statut">
-                Statut
+                Statut *
               </label>
 
               <select
@@ -437,108 +584,189 @@ function Vignettes() {
               </select>
             </div>
 
-            <button type="submit">
-              {modeModification
-                ? "Enregistrer la modification"
-                : "Enregistrer"}
-            </button>
+            {/* BOUTONS */}
 
-            {modeModification && (
+            <div className="form-actions">
+
+              <button
+                type="submit"
+                className="primary-button"
+                disabled={vehicules.length === 0}
+              >
+                {modeModification
+                  ? "✓ Enregistrer la modification"
+                  : "+ Enregistrer la vignette"}
+              </button>
+
               <button
                 type="button"
+                className="secondary-button"
                 onClick={annulerModification}
               >
                 Annuler
               </button>
-            )}
+
+            </div>
+
           </form>
         </section>
       )}
 
-      <section>
-        <h2>Liste des vignettes</h2>
+      {/* LISTE */}
 
-        {chargement && (
-          <p>
-            Chargement des vignettes...
-          </p>
-        )}
+      <section className="data-section">
 
-        {!chargement && !erreur && (
-          <>
-            <table>
-              <thead>
-                <tr>
-                  <th>Numéro</th>
-                  <th>Plaque</th>
-                  <th>Date de début</th>
-                  <th>Date d'expiration</th>
-                  <th>Statut</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
+        <div className="section-heading">
+          <div>
+            <span className="page-kicker">
+              DONNÉES
+            </span>
 
-              <tbody>
-                {vignettes.map((vignette) => (
-                  <tr key={vignette.id}>
-                    <td>
-                      {vignette.numero_vignette}
-                    </td>
+            <h2>
+              Liste des vignettes
+            </h2>
 
-                    <td>
-                      {vignette.vehicule
-                        ? vignette.vehicule.plaque
-                        : "-"}
-                    </td>
-
-                    <td>
-                      {vignette.date_delivrance}
-                    </td>
-
-                    <td>
-                      {vignette.date_expiration}
-                    </td>
-
-                    <td>
-                      {vignette.statut}
-                    </td>
-
-                    <td>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          preparerModification(
-                            vignette
-                          )
-                        }
-                      >
-                        Modifier
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          supprimerVignette(
-                            vignette.id
-                          )
-                        }
-                      >
-                        Supprimer
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {vignettes.length === 0 && (
+            {!chargement && (
               <p>
-                Aucune vignette enregistrée.
+                {vignettes.length} vignette(s)
+                enregistrée(s)
               </p>
             )}
-          </>
+          </div>
+        </div>
+
+        {chargement && (
+          <div className="loading-card">
+            <p>
+              Chargement des données...
+            </p>
+          </div>
         )}
+
+        {!chargement &&
+          vignettes.length > 0 && (
+            <div className="table-container">
+              <table className="data-table">
+
+                <thead>
+                  <tr>
+                    <th>Numéro</th>
+                    <th>Plaque</th>
+                    <th>Date de début</th>
+                    <th>Date d'expiration</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {vignettes.map((vignette) => (
+                    <tr key={vignette.id}>
+
+                      <td>
+                        <strong>
+                          {vignette.numero_vignette}
+                        </strong>
+                      </td>
+
+                      <td>
+                        <strong>
+                          {vignette.vehicule
+                            ? vignette.vehicule.plaque
+                            : vehicules.find(
+                                (vehicule) =>
+                                  vehicule.id ===
+                                  vignette.vehicule_id
+                              )?.plaque || "-"}
+                        </strong>
+                      </td>
+
+                      <td>
+                        {vignette.date_delivrance}
+                      </td>
+
+                      <td>
+                        {vignette.date_expiration}
+                      </td>
+
+                      <td>
+                        {vignette.statut ===
+                        "valide" ? (
+                          <span className="status-badge status-ok">
+                            ✓ Valide
+                          </span>
+                        ) : vignette.statut ===
+                          "expire" ? (
+                          <span className="status-badge status-danger">
+                            ⚠ Expirée
+                          </span>
+                        ) : (
+                          <span className="status-badge status-danger">
+                            ⚠ Annulée
+                          </span>
+                        )}
+                      </td>
+
+                      <td>
+                        <div className="table-actions">
+
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() =>
+                              preparerModification(
+                                vignette
+                              )
+                            }
+                          >
+                            Modifier
+                          </button>
+
+                          <button
+                            type="button"
+                            className="danger-button"
+                            onClick={() =>
+                              supprimerVignette(
+                                vignette.id
+                              )
+                            }
+                          >
+                            Supprimer
+                          </button>
+
+                        </div>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+            </div>
+          )}
+
+        {!chargement &&
+          vignettes.length === 0 && (
+            <div className="empty-card">
+
+              <div className="empty-icon">
+                🎫
+              </div>
+
+              <h3>
+                Aucune vignette enregistrée
+              </h3>
+
+              <p>
+                Ajoutez une première vignette
+                pour commencer.
+              </p>
+
+            </div>
+          )}
+
       </section>
+
     </div>
   );
 }
