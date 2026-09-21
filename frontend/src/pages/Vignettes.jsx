@@ -35,9 +35,9 @@ function Vignettes() {
   const [statut, setStatut] =
     useState("valide");
 
-  /* =========================
+  /* =====================================================
      CHARGER LES VIGNETTES
-  ========================= */
+  ===================================================== */
 
   const chargerVignettes = async () => {
     try {
@@ -59,15 +59,17 @@ function Vignettes() {
         );
       }
 
-      setVignettes(data);
+      setVignettes(
+        Array.isArray(data) ? data : []
+      );
     } catch (error) {
       setErreur(error.message);
     }
   };
 
-  /* =========================
+  /* =====================================================
      CHARGER LES VEHICULES
-  ========================= */
+  ===================================================== */
 
   const chargerVehicules = async () => {
     try {
@@ -89,15 +91,21 @@ function Vignettes() {
         );
       }
 
+      if (!Array.isArray(data)) {
+        throw new Error(
+          "La réponse des véhicules est invalide."
+        );
+      }
+
       setVehicules(data);
     } catch (error) {
       setErreur(error.message);
     }
   };
 
-  /* =========================
+  /* =====================================================
      CHARGEMENT INITIAL
-  ========================= */
+  ===================================================== */
 
   useEffect(() => {
     const chargerDonnees = async () => {
@@ -115,9 +123,9 @@ function Vignettes() {
     chargerDonnees();
   }, []);
 
-  /* =========================
+  /* =====================================================
      VIDER LE FORMULAIRE
-  ========================= */
+  ===================================================== */
 
   const viderFormulaire = () => {
     setNumeroVignette("");
@@ -130,9 +138,35 @@ function Vignettes() {
     setModeModification(false);
   };
 
-  /* =========================
+  /* =====================================================
+     OUVRIR LE FORMULAIRE
+  ===================================================== */
+
+  const ouvrirFormulaire = () => {
+    viderFormulaire();
+
+    setErreur("");
+    setMessage("");
+
+    setAfficherFormulaire(true);
+  };
+
+  /* =====================================================
+     FERMER LE FORMULAIRE
+  ===================================================== */
+
+  const fermerFormulaire = () => {
+    viderFormulaire();
+
+    setAfficherFormulaire(false);
+
+    setErreur("");
+    setMessage("");
+  };
+
+  /* =====================================================
      AJOUTER UNE VIGNETTE
-  ========================= */
+  ===================================================== */
 
   const ajouterVignette = async (event) => {
     event.preventDefault();
@@ -140,15 +174,25 @@ function Vignettes() {
     setErreur("");
     setMessage("");
 
+    if (!vehiculeId) {
+      setErreur(
+        "Veuillez sélectionner un véhicule."
+      );
+
+      return;
+    }
+
     try {
       const response = await fetch(
         `${API_URL}/vignettes`,
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
+
           body: JSON.stringify({
             numero_vignette: numeroVignette,
             vehicule_id: Number(vehiculeId),
@@ -162,8 +206,13 @@ function Vignettes() {
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 422 && data.errors) {
-          const erreurs = Object.values(data.errors)
+        if (
+          response.status === 422 &&
+          data.errors
+        ) {
+          const erreurs = Object.values(
+            data.errors
+          )
             .flat()
             .join(" ");
 
@@ -192,9 +241,9 @@ function Vignettes() {
     }
   };
 
-  /* =========================
-     PREPARER MODIFICATION
-  ========================= */
+  /* =====================================================
+     PREPARER LA MODIFICATION
+  ===================================================== */
 
   const preparerModification = (vignette) => {
     setNumeroVignette(
@@ -218,16 +267,18 @@ function Vignettes() {
     );
 
     setVignetteModifieeId(vignette.id);
+
     setModeModification(true);
+
     setAfficherFormulaire(true);
 
     setErreur("");
     setMessage("");
   };
 
-  /* =========================
+  /* =====================================================
      MODIFIER UNE VIGNETTE
-  ========================= */
+  ===================================================== */
 
   const modifierVignette = async (event) => {
     event.preventDefault();
@@ -235,15 +286,25 @@ function Vignettes() {
     setErreur("");
     setMessage("");
 
+    if (!vehiculeId) {
+      setErreur(
+        "Veuillez sélectionner un véhicule."
+      );
+
+      return;
+    }
+
     try {
       const response = await fetch(
         `${API_URL}/vignettes/${vignetteModifieeId}`,
         {
           method: "PUT",
+
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
+
           body: JSON.stringify({
             numero_vignette: numeroVignette,
             vehicule_id: Number(vehiculeId),
@@ -257,8 +318,13 @@ function Vignettes() {
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 422 && data.errors) {
-          const erreurs = Object.values(data.errors)
+        if (
+          response.status === 422 &&
+          data.errors
+        ) {
+          const erreurs = Object.values(
+            data.errors
+          )
             .flat()
             .join(" ");
 
@@ -280,6 +346,7 @@ function Vignettes() {
       );
 
       viderFormulaire();
+
       setAfficherFormulaire(false);
 
       setMessage(
@@ -290,9 +357,9 @@ function Vignettes() {
     }
   };
 
-  /* =========================
+  /* =====================================================
      SUPPRIMER UNE VIGNETTE
-  ========================= */
+  ===================================================== */
 
   const supprimerVignette = async (id) => {
     const confirmation = window.confirm(
@@ -311,13 +378,20 @@ function Vignettes() {
         `${API_URL}/vignettes/${id}`,
         {
           method: "DELETE",
+
           headers: {
             Accept: "application/json",
           },
         }
       );
 
-      const data = await response.json();
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -328,7 +402,8 @@ function Vignettes() {
 
       setVignettes((anciennes) =>
         anciennes.filter(
-          (vignette) => vignette.id !== id
+          (vignette) =>
+            vignette.id !== id
         )
       );
 
@@ -340,27 +415,30 @@ function Vignettes() {
     }
   };
 
-  /* =========================
-     ANNULER
-  ========================= */
+  /* =====================================================
+     AFFICHER LE VEHICULE
+  ===================================================== */
 
-  const annulerModification = () => {
-    viderFormulaire();
-    setAfficherFormulaire(false);
-    setErreur("");
-    setMessage("");
+  const trouverVehicule = (id) => {
+    return vehicules.find(
+      (vehicule) =>
+        Number(vehicule.id) === Number(id)
+    );
   };
 
-  /* =========================
+  /* =====================================================
      AFFICHAGE
-  ========================= */
+  ===================================================== */
 
   return (
     <div className="vignettes-page">
 
-      {/* EN-TÊTE */}
+      {/* =================================================
+          EN-TÊTE
+      ================================================= */}
 
       <div className="page-header">
+
         <div>
           <span className="page-kicker">
             ADMINISTRATION
@@ -379,26 +457,22 @@ function Vignettes() {
         <button
           type="button"
           className="primary-button"
-          onClick={() => {
-            if (afficherFormulaire) {
-              viderFormulaire();
-            }
-
-            setAfficherFormulaire(
-              !afficherFormulaire
-            );
-
-            setErreur("");
-            setMessage("");
-          }}
+          onClick={
+            afficherFormulaire
+              ? fermerFormulaire
+              : ouvrirFormulaire
+          }
         >
           {afficherFormulaire
             ? "Fermer le formulaire"
             : "+ Ajouter une vignette"}
         </button>
+
       </div>
 
-      {/* MESSAGES */}
+      {/* =================================================
+          MESSAGES
+      ================================================= */}
 
       {message && (
         <div className="alert alert-success">
@@ -412,12 +486,15 @@ function Vignettes() {
         </div>
       )}
 
-      {/* FORMULAIRE */}
+      {/* =================================================
+          FORMULAIRE
+      ================================================= */}
 
       {afficherFormulaire && (
         <section className="data-section vignette-form-section">
 
           <div className="section-heading">
+
             <div>
               <span className="page-kicker">
                 VIGNETTE
@@ -434,6 +511,7 @@ function Vignettes() {
                 de la vignette.
               </p>
             </div>
+
           </div>
 
           <form
@@ -448,6 +526,7 @@ function Vignettes() {
             {/* NUMERO */}
 
             <div className="form-field">
+
               <label htmlFor="numero_vignette">
                 Numéro de vignette *
               </label>
@@ -464,11 +543,13 @@ function Vignettes() {
                 placeholder="Ex : VG-2026-00001"
                 required
               />
+
             </div>
 
             {/* VEHICULE */}
 
             <div className="form-field">
+
               <label htmlFor="vehicule_id">
                 Véhicule *
               </label>
@@ -483,10 +564,11 @@ function Vignettes() {
                 }
                 required
               >
+
                 <option value="">
-                  {vehicules.length === 0
-                    ? "Aucun véhicule enregistré"
-                    : "Sélectionner un véhicule"}
+                  {vehicules.length > 0
+                    ? "Sélectionner un véhicule"
+                    : "Chargement des véhicules..."}
                 </option>
 
                 {vehicules.map((vehicule) => (
@@ -494,28 +576,33 @@ function Vignettes() {
                     key={vehicule.id}
                     value={vehicule.id}
                   >
-                    {vehicule.plaque}
+                    {vehicule.plaque || "Sans plaque"}
                     {" — "}
                     {vehicule.type || "Véhicule"}
                     {vehicule.marque
                       ? ` — ${vehicule.marque}`
                       : ""}
+                    {vehicule.modele
+                      ? ` ${vehicule.modele}`
+                      : ""}
                   </option>
                 ))}
+
               </select>
 
-              {vehicules.length === 0 && (
-                <small className="form-help">
-                  Aucun véhicule n'est actuellement
-                  enregistré dans la base de données.
-                  Ajoutez d'abord un véhicule.
-                </small>
-              )}
+              {vehicules.length === 0 &&
+                !chargement && (
+                  <small className="form-help">
+                    Aucun véhicule n'a été chargé.
+                  </small>
+                )}
+
             </div>
 
-            {/* DATE DELIVRANCE */}
+            {/* DATE DE DELIVRANCE */}
 
             <div className="form-field">
+
               <label htmlFor="date_delivrance">
                 Date de délivrance *
               </label>
@@ -531,11 +618,13 @@ function Vignettes() {
                 }
                 required
               />
+
             </div>
 
-            {/* DATE EXPIRATION */}
+            {/* DATE D'EXPIRATION */}
 
             <div className="form-field">
+
               <label htmlFor="date_expiration">
                 Date d'expiration *
               </label>
@@ -551,11 +640,13 @@ function Vignettes() {
                 }
                 required
               />
+
             </div>
 
             {/* STATUT */}
 
             <div className="form-field">
+
               <label htmlFor="statut">
                 Statut *
               </label>
@@ -570,6 +661,7 @@ function Vignettes() {
                 }
                 required
               >
+
                 <option value="valide">
                   Valide
                 </option>
@@ -581,7 +673,9 @@ function Vignettes() {
                 <option value="annule">
                   Annulée
                 </option>
+
               </select>
+
             </div>
 
             {/* BOUTONS */}
@@ -591,7 +685,10 @@ function Vignettes() {
               <button
                 type="submit"
                 className="primary-button"
-                disabled={vehicules.length === 0}
+                disabled={
+                  chargement ||
+                  vehicules.length === 0
+                }
               >
                 {modeModification
                   ? "✓ Enregistrer la modification"
@@ -601,7 +698,7 @@ function Vignettes() {
               <button
                 type="button"
                 className="secondary-button"
-                onClick={annulerModification}
+                onClick={fermerFormulaire}
               >
                 Annuler
               </button>
@@ -609,15 +706,20 @@ function Vignettes() {
             </div>
 
           </form>
+
         </section>
       )}
 
-      {/* LISTE */}
+      {/* =================================================
+          LISTE DES VIGNETTES
+      ================================================= */}
 
       <section className="data-section">
 
         <div className="section-heading">
+
           <div>
+
             <span className="page-kicker">
               DONNÉES
             </span>
@@ -632,121 +734,173 @@ function Vignettes() {
                 enregistrée(s)
               </p>
             )}
+
           </div>
+
         </div>
+
+        {/* CHARGEMENT */}
 
         {chargement && (
           <div className="loading-card">
+
             <p>
               Chargement des données...
             </p>
+
           </div>
         )}
 
+        {/* TABLEAU */}
+
         {!chargement &&
           vignettes.length > 0 && (
+
             <div className="table-container">
+
               <table className="data-table">
 
                 <thead>
+
                   <tr>
                     <th>Numéro</th>
+                    <th>Véhicule</th>
                     <th>Plaque</th>
                     <th>Date de début</th>
                     <th>Date d'expiration</th>
                     <th>Statut</th>
                     <th>Actions</th>
                   </tr>
+
                 </thead>
 
                 <tbody>
-                  {vignettes.map((vignette) => (
-                    <tr key={vignette.id}>
 
-                      <td>
-                        <strong>
-                          {vignette.numero_vignette}
-                        </strong>
-                      </td>
+                  {vignettes.map(
+                    (vignette) => {
 
-                      <td>
-                        <strong>
-                          {vignette.vehicule
-                            ? vignette.vehicule.plaque
-                            : vehicules.find(
-                                (vehicule) =>
-                                  vehicule.id ===
-                                  vignette.vehicule_id
-                              )?.plaque || "-"}
-                        </strong>
-                      </td>
+                      const vehicule =
+                        vignette.vehicule ||
+                        trouverVehicule(
+                          vignette.vehicule_id
+                        );
 
-                      <td>
-                        {vignette.date_delivrance}
-                      </td>
+                      return (
+                        <tr
+                          key={vignette.id}
+                        >
 
-                      <td>
-                        {vignette.date_expiration}
-                      </td>
+                          <td>
+                            <strong>
+                              {
+                                vignette.numero_vignette
+                              }
+                            </strong>
+                          </td>
 
-                      <td>
-                        {vignette.statut ===
-                        "valide" ? (
-                          <span className="status-badge status-ok">
-                            ✓ Valide
-                          </span>
-                        ) : vignette.statut ===
-                          "expire" ? (
-                          <span className="status-badge status-danger">
-                            ⚠ Expirée
-                          </span>
-                        ) : (
-                          <span className="status-badge status-danger">
-                            ⚠ Annulée
-                          </span>
-                        )}
-                      </td>
+                          <td>
+                            {vehicule
+                              ? `${vehicule.marque || ""} ${vehicule.modele || ""}`.trim() ||
+                                vehicule.type ||
+                                "Véhicule"
+                              : "—"}
+                          </td>
 
-                      <td>
-                        <div className="table-actions">
+                          <td>
+                            <strong>
+                              {vehicule
+                                ? vehicule.plaque
+                                : "—"}
+                            </strong>
+                          </td>
 
-                          <button
-                            type="button"
-                            className="secondary-button"
-                            onClick={() =>
-                              preparerModification(
-                                vignette
-                              )
+                          <td>
+                            {
+                              vignette.date_delivrance
                             }
-                          >
-                            Modifier
-                          </button>
+                          </td>
 
-                          <button
-                            type="button"
-                            className="danger-button"
-                            onClick={() =>
-                              supprimerVignette(
-                                vignette.id
-                              )
+                          <td>
+                            {
+                              vignette.date_expiration
                             }
-                          >
-                            Supprimer
-                          </button>
+                          </td>
 
-                        </div>
-                      </td>
+                          <td>
 
-                    </tr>
-                  ))}
+                            {vignette.statut ===
+                            "valide" ? (
+
+                              <span className="status-badge status-ok">
+                                ✓ Valide
+                              </span>
+
+                            ) : vignette.statut ===
+                              "expire" ? (
+
+                              <span className="status-badge status-danger">
+                                ⚠ Expirée
+                              </span>
+
+                            ) : (
+
+                              <span className="status-badge status-danger">
+                                ⚠ Annulée
+                              </span>
+
+                            )}
+
+                          </td>
+
+                          <td>
+
+                            <div className="table-actions">
+
+                              <button
+                                type="button"
+                                className="secondary-button"
+                                onClick={() =>
+                                  preparerModification(
+                                    vignette
+                                  )
+                                }
+                              >
+                                Modifier
+                              </button>
+
+                              <button
+                                type="button"
+                                className="danger-button"
+                                onClick={() =>
+                                  supprimerVignette(
+                                    vignette.id
+                                  )
+                                }
+                              >
+                                Supprimer
+                              </button>
+
+                            </div>
+
+                          </td>
+
+                        </tr>
+                      );
+                    }
+                  )}
+
                 </tbody>
 
               </table>
+
             </div>
           )}
 
+        {/* AUCUNE VIGNETTE */}
+
         {!chargement &&
           vignettes.length === 0 && (
+
             <div className="empty-card">
 
               <div className="empty-icon">
