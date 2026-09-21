@@ -5,6 +5,8 @@ function DetailVehicule() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const API_URL = "https://vignette-controleur.onrender.com/api";
+
   const id = searchParams.get("id");
 
   const [vehicule, setVehicule] = useState(null);
@@ -16,7 +18,12 @@ function DetailVehicule() {
     const chargerDetails = async () => {
       try {
         const vehiculeResponse = await fetch(
-          `http://127.0.0.1:8001/api/vehicules/${id}`
+          `${API_URL}/vehicules/${id}`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
         );
 
         const vehiculeData = await vehiculeResponse.json();
@@ -30,7 +37,12 @@ function DetailVehicule() {
         setVehicule(vehiculeData);
 
         const vignettesResponse = await fetch(
-          "http://127.0.0.1:8001/api/vignettes"
+          `${API_URL}/vignettes`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
         );
 
         const vignettesData = await vignettesResponse.json();
