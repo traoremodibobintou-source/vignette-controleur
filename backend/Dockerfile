@@ -16,6 +16,7 @@ WORKDIR /var/www/html
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN php artisan config:publish cors
 
 RUN mkdir -p database \
     && touch database/database.sqlite \
