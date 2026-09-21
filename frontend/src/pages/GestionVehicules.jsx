@@ -8,11 +8,21 @@ function GestionVehicules() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
 
+  const API_URL = "https://vignette-controleur.onrender.com/api";
+
   useEffect(() => {
     const chargerVehicules = async () => {
       try {
+        setChargement(true);
+
         const response = await fetch(
-          "http://127.0.0.1:8001/api/vehicules"
+          `${API_URL}/vehicules`,
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          }
         );
 
         const data = await response.json();
@@ -24,8 +34,11 @@ function GestionVehicules() {
         }
 
         setVehicules(data);
+        setErreur("");
       } catch (error) {
-        setErreur(error.message);
+        setErreur(
+          error.message || "Impossible de contacter le serveur."
+        );
       } finally {
         setChargement(false);
       }
@@ -43,11 +56,16 @@ function GestionVehicules() {
       return;
     }
 
+    setErreur("");
+
     try {
       const response = await fetch(
-        `http://127.0.0.1:8001/api/vehicules/${id}`,
+        `${API_URL}/vehicules/${id}`,
         {
           method: "DELETE",
+          headers: {
+            Accept: "application/json",
+          },
         }
       );
 
@@ -60,10 +78,14 @@ function GestionVehicules() {
       }
 
       setVehicules((anciensVehicules) =>
-        anciensVehicules.filter((vehicule) => vehicule.id !== id)
+        anciensVehicules.filter(
+          (vehicule) => vehicule.id !== id
+        )
       );
     } catch (error) {
-      setErreur(error.message);
+      setErreur(
+        error.message || "Impossible de contacter le serveur."
+      );
     }
   };
 
@@ -122,130 +144,136 @@ function GestionVehicules() {
           </div>
         )}
 
-        {!chargement && !erreur && vehicules.length === 0 && (
-          <div className="empty-card">
-            <h3>Aucun véhicule enregistré</h3>
+        {!chargement &&
+          !erreur &&
+          vehicules.length === 0 && (
+            <div className="empty-card">
+              <h3>Aucun véhicule enregistré</h3>
 
-            <p>
-              Commencez par ajouter un véhicule dans la base
-              de données.
-            </p>
+              <p>
+                Commencez par ajouter un véhicule dans la base
+                de données.
+              </p>
 
-            <button
-              type="button"
-              className="primary-button"
-              onClick={() => navigate("/ajouter-vehicule")}
-            >
-              + Ajouter un véhicule
-            </button>
-          </div>
-        )}
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() =>
+                  navigate("/ajouter-vehicule")
+                }
+              >
+                + Ajouter un véhicule
+              </button>
+            </div>
+          )}
 
-        {!chargement && !erreur && vehicules.length > 0 && (
-          <div className="table-container">
+        {!chargement &&
+          !erreur &&
+          vehicules.length > 0 && (
+            <div className="table-container">
 
-            <table className="data-table">
+              <table className="data-table">
 
-              <thead>
-                <tr>
-                  <th>Plaque</th>
-                  <th>Type</th>
-                  <th>Marque</th>
-                  <th>Modèle</th>
-                  <th>Propriétaire</th>
-                  <th>Statut</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {vehicules.map((vehicule) => (
-                  <tr key={vehicule.id}>
-
-                    <td>
-                      <strong className="plate-number">
-                        {vehicule.plaque}
-                      </strong>
-                    </td>
-
-                    <td>
-                      {vehicule.type}
-                    </td>
-
-                    <td>
-                      {vehicule.marque || "—"}
-                    </td>
-
-                    <td>
-                      {vehicule.modele || "—"}
-                    </td>
-
-                    <td>
-                      {vehicule.proprietaire
-                        ? `${vehicule.proprietaire.prenom} ${vehicule.proprietaire.nom}`
-                        : "Non renseigné"}
-                    </td>
-
-                    <td>
-                      {vehicule.statut_vol === "signale" ? (
-                        <span className="status-badge status-danger">
-                          ⚠ Signalé
-                        </span>
-                      ) : (
-                        <span className="status-badge status-ok">
-                          ✓ Non signalé
-                        </span>
-                      )}
-                    </td>
-
-                    <td>
-                      <div className="table-actions">
-
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          onClick={() =>
-                            navigate(
-                              `/detail-vehicule?id=${vehicule.id}`
-                            )
-                          }
-                        >
-                          Voir
-                        </button>
-
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          onClick={() =>
-                            navigate(
-                              `/ajouter-vehicule?id=${vehicule.id}`
-                            )
-                          }
-                        >
-                          Modifier
-                        </button>
-
-                        <button
-                          type="button"
-                          className="danger-button"
-                          onClick={() =>
-                            supprimerVehicule(vehicule.id)
-                          }
-                        >
-                          Supprimer
-                        </button>
-
-                      </div>
-                    </td>
-
+                <thead>
+                  <tr>
+                    <th>Plaque</th>
+                    <th>Type</th>
+                    <th>Marque</th>
+                    <th>Modèle</th>
+                    <th>Propriétaire</th>
+                    <th>Statut</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
+                </thead>
 
-            </table>
+                <tbody>
+                  {vehicules.map((vehicule) => (
+                    <tr key={vehicule.id}>
 
-          </div>
-        )}
+                      <td>
+                        <strong className="plate-number">
+                          {vehicule.plaque}
+                        </strong>
+                      </td>
+
+                      <td>
+                        {vehicule.type}
+                      </td>
+
+                      <td>
+                        {vehicule.marque || "—"}
+                      </td>
+
+                      <td>
+                        {vehicule.modele || "—"}
+                      </td>
+
+                      <td>
+                        {vehicule.proprietaire
+                          ? `${vehicule.proprietaire.prenom} ${vehicule.proprietaire.nom}`
+                          : "Non renseigné"}
+                      </td>
+
+                      <td>
+                        {vehicule.statut_vol === "signale" ? (
+                          <span className="status-badge status-danger">
+                            ⚠ Signalé
+                          </span>
+                        ) : (
+                          <span className="status-badge status-ok">
+                            ✓ Non signalé
+                          </span>
+                        )}
+                      </td>
+
+                      <td>
+                        <div className="table-actions">
+
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() =>
+                              navigate(
+                                `/detail-vehicule?id=${vehicule.id}`
+                              )
+                            }
+                          >
+                            Voir
+                          </button>
+
+                          <button
+                            type="button"
+                            className="secondary-button"
+                            onClick={() =>
+                              navigate(
+                                `/ajouter-vehicule?id=${vehicule.id}`
+                              )
+                            }
+                          >
+                            Modifier
+                          </button>
+
+                          <button
+                            type="button"
+                            className="danger-button"
+                            onClick={() =>
+                              supprimerVehicule(vehicule.id)
+                            }
+                          >
+                            Supprimer
+                          </button>
+
+                        </div>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+
+            </div>
+          )}
 
       </section>
 
