@@ -1,9 +1,11 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 function Layout({ children }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role;
-  const location = useLocation();
 
   const isConnexionPage = location.pathname === "/connexion";
 
@@ -14,7 +16,9 @@ function Layout({ children }) {
 
     if (confirmation) {
       localStorage.removeItem("user");
-      window.location.href = "/vignette-controleur/connexion";
+
+      // Retour à la connexion avec React Router
+      navigate("/connexion");
     }
   };
 
@@ -41,6 +45,7 @@ function Layout({ children }) {
       <div className="app-body">
         <aside className="app-sidebar">
           <nav>
+
             {role && (
               <button
                 type="button"
@@ -114,6 +119,7 @@ function Layout({ children }) {
                 </NavLink>
               </>
             )}
+
           </nav>
         </aside>
 
