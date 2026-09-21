@@ -24,11 +24,21 @@ function AjouterVehicule() {
     proprietaire_id: "",
   });
 
+  const API_URL = "https://vignette-controleur.onrender.com/api";
+
   useEffect(() => {
     const chargerDonnees = async () => {
       try {
+        setChargement(true);
+
         const proprietairesResponse = await fetch(
-          "http://127.0.0.1:8001/api/proprietaires"
+          `${API_URL}/proprietaires`,
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          }
         );
 
         const proprietairesData =
@@ -45,7 +55,13 @@ function AjouterVehicule() {
 
         if (modeModification) {
           const vehiculeResponse = await fetch(
-            `http://127.0.0.1:8001/api/vehicules/${id}`
+            `${API_URL}/vehicules/${id}`,
+            {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+              },
+            }
           );
 
           const vehiculeData =
@@ -70,7 +86,10 @@ function AjouterVehicule() {
           });
         }
       } catch (error) {
-        setErreur(error.message);
+        setErreur(
+          error.message ||
+            "Impossible de contacter le serveur."
+        );
       } finally {
         setChargement(false);
       }
@@ -97,8 +116,8 @@ function AjouterVehicule() {
 
     try {
       const url = modeModification
-        ? `http://127.0.0.1:8001/api/vehicules/${id}`
-        : "http://127.0.0.1:8001/api/vehicules";
+        ? `${API_URL}/vehicules/${id}`
+        : `${API_URL}/vehicules`;
 
       const response = await fetch(url, {
         method: modeModification ? "PUT" : "POST",
@@ -142,7 +161,10 @@ function AjouterVehicule() {
         navigate("/gestion-vehicules");
       }, 800);
     } catch (error) {
-      setErreur(error.message);
+      setErreur(
+        error.message ||
+          "Impossible de contacter le serveur."
+      );
     } finally {
       setEnregistrement(false);
     }
@@ -186,7 +208,9 @@ function AjouterVehicule() {
       <button
         type="button"
         className="secondary-button form-back-button"
-        onClick={() => navigate("/gestion-vehicules")}
+        onClick={() =>
+          navigate("/gestion-vehicules")
+        }
       >
         ← Retour
       </button>
@@ -397,18 +421,4 @@ function AjouterVehicule() {
               {enregistrement
                 ? "Enregistrement..."
                 : modeModification
-                ? "✓ Enregistrer les modifications"
-                : "+ Enregistrer le véhicule"}
-            </button>
-
-          </div>
-
-        </form>
-
-      </section>
-
-    </div>
-  );
-}
-
-export default AjouterVehicule;
+                ? "✓ Enregistrer les modifications
