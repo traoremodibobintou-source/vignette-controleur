@@ -6,6 +6,7 @@ function Connexion() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [afficherMotDePasse, setAfficherMotDePasse] = useState(false);
   const [erreur, setErreur] = useState("");
   const [chargement, setChargement] = useState(false);
 
@@ -60,7 +61,6 @@ function Connexion() {
   return (
     <div className="connexion-page">
       <div className="connexion-card">
-
         <div className="connexion-header">
           <div className="connexion-logo">🛡️</div>
 
@@ -75,10 +75,14 @@ function Connexion() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="connexion-form">
-
+        <form
+          onSubmit={handleSubmit}
+          className="connexion-form"
+        >
           <div className="connexion-field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">
+              Email
+            </label>
 
             <input
               type="email"
@@ -92,17 +96,62 @@ function Connexion() {
           </div>
 
           <div className="connexion-field">
-            <label htmlFor="password">Mot de passe</label>
+            <label htmlFor="password">
+              Mot de passe
+            </label>
 
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Votre mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <input
+                type={
+                  afficherMotDePasse
+                    ? "text"
+                    : "password"
+                }
+                id="password"
+                name="password"
+                placeholder="Votre mot de passe"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
+                required
+                style={{
+                  width: "100%",
+                  paddingRight: "50px",
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setAfficherMotDePasse(
+                    !afficherMotDePasse
+                  )
+                }
+                aria-label={
+                  afficherMotDePasse
+                    ? "Masquer le mot de passe"
+                    : "Afficher le mot de passe"
+                }
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "20px",
+                  padding: "5px",
+                }}
+              >
+                {afficherMotDePasse ? "🙈" : "👁️"}
+              </button>
+            </div>
           </div>
 
           <button
@@ -110,9 +159,10 @@ function Connexion() {
             className="connexion-button"
             disabled={chargement}
           >
-            {chargement ? "Connexion..." : "SE CONNECTER"}
+            {chargement
+              ? "Connexion..."
+              : "SE CONNECTER"}
           </button>
-
         </form>
       </div>
     </div>
