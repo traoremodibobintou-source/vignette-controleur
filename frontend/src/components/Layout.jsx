@@ -14,7 +14,7 @@ function Layout({ children }) {
 
     if (confirmation) {
       localStorage.removeItem("user");
-      window.location.href = "/connexion";
+      window.location.href = "/vignette-controleur/connexion";
     }
   };
 
@@ -41,7 +41,6 @@ function Layout({ children }) {
       <div className="app-body">
         <aside className="app-sidebar">
           <nav>
-
             {role && (
               <button
                 type="button"
@@ -115,7 +114,6 @@ function Layout({ children }) {
                 </NavLink>
               </>
             )}
-
           </nav>
         </aside>
 
