@@ -8,11 +8,14 @@ function AjouterVehicule() {
   const id = searchParams.get("id");
   const modeModification = Boolean(id);
 
-  const API_URL = "https://vignette-controleur.onrender.com/api";
+  const API_URL =
+    "https://vignette-controleur.onrender.com/api";
 
   const [proprietaires, setProprietaires] = useState([]);
+
   const [chargement, setChargement] = useState(true);
   const [enregistrement, setEnregistrement] = useState(false);
+
   const [erreur, setErreur] = useState("");
   const [message, setMessage] = useState("");
 
@@ -24,19 +27,27 @@ function AjouterVehicule() {
     couleur: "",
     annee: "",
     proprietaire_id: "",
+    statut_vol: "non_signale",
   });
+
+  /* =========================
+     CHARGEMENT
+  ========================= */
 
   useEffect(() => {
     const chargerDonnees = async () => {
       try {
-        const proprietairesResponse = await fetch(
-          `${API_URL}/proprietaires`,
-          {
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
+        /* Charger les propriétaires */
+
+        const proprietairesResponse =
+          await fetch(
+            `${API_URL}/proprietaires`,
+            {
+              headers: {
+                Accept: "application/json",
+              },
+            }
+          );
 
         const proprietairesData =
           await proprietairesResponse.json();
@@ -48,17 +59,24 @@ function AjouterVehicule() {
           );
         }
 
-        setProprietaires(proprietairesData);
+        setProprietaires(
+          Array.isArray(proprietairesData)
+            ? proprietairesData
+            : []
+        );
+
+        /* Charger le véhicule en modification */
 
         if (modeModification) {
-          const vehiculeResponse = await fetch(
-            `${API_URL}/vehicules/${id}`,
-            {
-              headers: {
-                Accept: "application/json",
-              },
-            }
-          );
+          const vehiculeResponse =
+            await fetch(
+              `${API_URL}/vehicules/${id}`,
+              {
+                headers: {
+                  Accept: "application/json",
+                },
+              }
+            );
 
           const vehiculeData =
             await vehiculeResponse.json();
@@ -79,6 +97,9 @@ function AjouterVehicule() {
             annee: vehiculeData.annee || "",
             proprietaire_id:
               vehiculeData.proprietaire_id || "",
+            statut_vol:
+              vehiculeData.statut_vol ||
+              "non_signale",
           });
         }
       } catch (error) {
@@ -91,6 +112,10 @@ function AjouterVehicule() {
     chargerDonnees();
   }, [id, modeModification]);
 
+  /* =========================
+     MODIFIER UN CHAMP
+  ========================= */
+
   const modifierChamp = (event) => {
     const { name, value } = event.target;
 
@@ -99,6 +124,10 @@ function AjouterVehicule() {
       [name]: value,
     }));
   };
+
+  /* =========================
+     ENREGISTRER
+  ========================= */
 
   const enregistrerVehicule = async (event) => {
     event.preventDefault();
@@ -114,24 +143,38 @@ function AjouterVehicule() {
 
       const response = await fetch(url, {
         method: modeModification ? "PUT" : "POST",
+
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+
         body: JSON.stringify({
-          ...formulaire,
+          plaque: formulaire.plaque,
+          type: formulaire.type,
+          marque: formulaire.marque,
+          modele: formulaire.modele,
+          couleur: formulaire.couleur,
           annee: formulaire.annee || null,
-          proprietaire_id: formulaire.proprietaire_id
-            ? Number(formulaire.proprietaire_id)
-            : null,
+          proprietaire_id:
+            formulaire.proprietaire_id
+              ? Number(formulaire.proprietaire_id)
+              : null,
+          statut_vol:
+            formulaire.statut_vol,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 422 && data.errors) {
-          const erreurs = Object.values(data.errors)
+        if (
+          response.status === 422 &&
+          data.errors
+        ) {
+          const erreurs = Object.values(
+            data.errors
+          )
             .flat()
             .join(" ");
 
@@ -160,6 +203,10 @@ function AjouterVehicule() {
     }
   };
 
+  /* =========================
+     CHARGEMENT
+  ========================= */
+
   if (chargement) {
     return (
       <div className="page-container">
@@ -170,12 +217,19 @@ function AjouterVehicule() {
     );
   }
 
+  /* =========================
+     AFFICHAGE
+  ========================= */
+
   return (
     <div className="page-container form-page">
 
-      {/* En-tête */}
+      {/* EN-TÊTE */}
+
       <div className="page-header">
+
         <div>
+
           <span className="hero-badge">
             ADMINISTRATION
           </span>
@@ -191,47 +245,62 @@ function AjouterVehicule() {
               ? "Modifiez les informations du véhicule enregistré dans la base de données."
               : "Enregistrez un nouveau véhicule dans la base de données."}
           </p>
+
         </div>
+
       </div>
 
-      {/* Retour */}
+      {/* RETOUR */}
+
       <button
         type="button"
         className="secondary-button form-back-button"
-        onClick={() => navigate("/gestion-vehicules")}
+        onClick={() =>
+          navigate("/gestion-vehicules")
+        }
       >
         ← Retour
       </button>
 
-      {/* Erreur */}
+      {/* ERREUR */}
+
       {erreur && (
         <div className="alert alert-error">
           {erreur}
         </div>
       )}
 
-      {/* Succès */}
+      {/* SUCCÈS */}
+
       {message && (
         <div className="alert alert-success">
           {message}
         </div>
       )}
 
-      {/* Formulaire */}
+      {/* FORMULAIRE */}
+
       <section className="form-section">
 
         <div className="section-heading">
+
           <div>
+
             <div className="detail-icon">
               🚗
             </div>
 
-            <h2>Informations du véhicule</h2>
+            <h2>
+              Informations du véhicule
+            </h2>
 
             <p>
-              Renseignez les caractéristiques du véhicule.
+              Renseignez les caractéristiques
+              du véhicule.
             </p>
+
           </div>
+
         </div>
 
         <form
@@ -241,8 +310,10 @@ function AjouterVehicule() {
 
           <div className="form-grid">
 
-            {/* Plaque */}
+            {/* PLAQUE */}
+
             <div className="form-group">
+
               <label htmlFor="plaque">
                 Numéro de plaque *
               </label>
@@ -256,10 +327,13 @@ function AjouterVehicule() {
                 placeholder="Ex : AB1234MD"
                 required
               />
+
             </div>
 
-            {/* Type */}
+            {/* TYPE */}
+
             <div className="form-group">
+
               <label htmlFor="type">
                 Type de véhicule *
               </label>
@@ -271,16 +345,34 @@ function AjouterVehicule() {
                 onChange={modifierChamp}
                 required
               >
+
                 <option value="">
                   Sélectionner un type
                 </option>
 
-                <option value="Moto">Moto</option>
-                <option value="Voiture">Voiture</option>
-                <option value="Taxi">Taxi</option>
-                <option value="Minibus">Minibus</option>
-                <option value="Bus">Bus</option>
-                <option value="Camion">Camion</option>
+                <option value="Moto">
+                  Moto
+                </option>
+
+                <option value="Voiture">
+                  Voiture
+                </option>
+
+                <option value="Taxi">
+                  Taxi
+                </option>
+
+                <option value="Minibus">
+                  Minibus
+                </option>
+
+                <option value="Bus">
+                  Bus
+                </option>
+
+                <option value="Camion">
+                  Camion
+                </option>
 
                 <option value="Camion-remorque">
                   Camion-remorque
@@ -293,11 +385,15 @@ function AjouterVehicule() {
                 <option value="Autre">
                   Autre
                 </option>
+
               </select>
+
             </div>
 
-            {/* Marque */}
+            {/* MARQUE */}
+
             <div className="form-group">
+
               <label htmlFor="marque">
                 Marque
               </label>
@@ -310,10 +406,13 @@ function AjouterVehicule() {
                 onChange={modifierChamp}
                 placeholder="Ex : Toyota"
               />
+
             </div>
 
-            {/* Modèle */}
+            {/* MODELE */}
+
             <div className="form-group">
+
               <label htmlFor="modele">
                 Modèle
               </label>
@@ -326,10 +425,13 @@ function AjouterVehicule() {
                 onChange={modifierChamp}
                 placeholder="Ex : Corolla"
               />
+
             </div>
 
-            {/* Couleur */}
+            {/* COULEUR */}
+
             <div className="form-group">
+
               <label htmlFor="couleur">
                 Couleur
               </label>
@@ -342,10 +444,13 @@ function AjouterVehicule() {
                 onChange={modifierChamp}
                 placeholder="Ex : Rouge"
               />
+
             </div>
 
-            {/* Année */}
+            {/* ANNEE */}
+
             <div className="form-group">
+
               <label htmlFor="annee">
                 Année
               </label>
@@ -358,10 +463,13 @@ function AjouterVehicule() {
                 onChange={modifierChamp}
                 placeholder="Ex : 2020"
               />
+
             </div>
 
-            {/* Propriétaire */}
-            <div className="form-group form-group-full">
+            {/* PROPRIETAIRE */}
+
+            <div className="form-group">
+
               <label htmlFor="proprietaire_id">
                 Propriétaire *
               </label>
@@ -373,26 +481,67 @@ function AjouterVehicule() {
                 onChange={modifierChamp}
                 required
               >
+
                 <option value="">
                   Sélectionner un propriétaire
                 </option>
 
-                {proprietaires.map((proprietaire) => (
-                  <option
-                    key={proprietaire.id}
-                    value={proprietaire.id}
-                  >
-                    {proprietaire.prenom}{" "}
-                    {proprietaire.nom} —{" "}
-                    {proprietaire.telephone}
-                  </option>
-                ))}
+                {proprietaires.map(
+                  (proprietaire) => (
+                    <option
+                      key={proprietaire.id}
+                      value={proprietaire.id}
+                    >
+                      {proprietaire.prenom}{" "}
+                      {proprietaire.nom}
+                      {" — "}
+                      {proprietaire.telephone}
+                    </option>
+                  )
+                )}
+
               </select>
+
+            </div>
+
+            {/* STATUT DU VEHICULE */}
+
+            <div className="form-group">
+
+              <label htmlFor="statut_vol">
+                Statut du véhicule *
+              </label>
+
+              <select
+                id="statut_vol"
+                name="statut_vol"
+                value={formulaire.statut_vol}
+                onChange={modifierChamp}
+                required
+              >
+
+                <option value="non_signale">
+                  ✓ Non signalé
+                </option>
+
+                <option value="signale">
+                  ⚠ Signalé
+                </option>
+
+              </select>
+
+              <small className="form-help">
+                Sélectionnez « Signalé » si le
+                véhicule fait l'objet d'un
+                signalement de vol.
+              </small>
+
             </div>
 
           </div>
 
-          {/* Actions */}
+          {/* ACTIONS */}
+
           <div className="form-actions">
 
             <button
